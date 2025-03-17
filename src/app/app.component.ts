@@ -1,5 +1,5 @@
 import {CommonModule, DatePipe} from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -18,6 +18,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import {CurrencyService} from './currency.service';
 import {ConversionService} from './conversion.service';
 import {ValidationService} from './validation.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -30,12 +31,13 @@ import {ValidationService} from './validation.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   myForm: FormGroup;
   currencies: string[] = [];
   responseMessage = '';
   errorMessage = '';
   conversionResult: string = '';
+  subscriptions: Subscription[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -54,15 +56,19 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.currencyService.getCurrencies().subscribe(
+    const currencySubscription = this.currencyService.getCurrencies().subscribe(
       (data) => {
-        // Assuming the response is an object with currency codes as keys
         this.currencies = Object.keys(data);
       },
       (error) => {
         console.error('Error fetching currencies:', error);
       }
     );
+    this.subscriptions.push(currencySubscription); // Add to subscriptions array
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe()); // Unsubscribe when the component is destroyed
   }
 
   onSubmit() {
