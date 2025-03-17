@@ -1,0 +1,66 @@
+<mat-card>
+  <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+    <!-- Amount Input -->
+    <mat-form-field appearance="outline">
+      <mat-label>Amount</mat-label>
+      <input matInput type="number" formControlName="amount" />
+      <mat-error *ngIf="myForm.controls['amount'].hasError('required')">
+        Amount is required.
+      </mat-error>
+      <mat-error *ngIf="myForm.controls['amount'].hasError('min')">
+        Amount must be 0 or greater.
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Currency From Dropdown -->
+    <mat-form-field appearance="outline">
+
+      <mat-label>Currency From</mat-label>
+      <mat-select formControlName="currencyFrom">
+        <mat-option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="myForm.controls['currencyFrom'].hasError('required')">
+        Please select a currency.
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Currency To Dropdown -->
+    <mat-form-field appearance="outline">
+      <mat-label>Currency To</mat-label>
+      <mat-select formControlName="currencyTo">
+        <mat-option *ngFor="let currency of currencies" [value]="currency">{{ currency }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Date Picker -->
+    <mat-form-field appearance="outline">
+      <mat-label>Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="date" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="myForm.controls['date'].hasError('required')">
+        Date is required.
+      </mat-error>
+      <mat-error *ngIf="myForm.controls['date'].hasError('futureDate')">
+        Date cannot be in the future.
+      </mat-error>
+    </mat-form-field>
+
+    <br />
+
+    <!-- Submit Button -->
+    <button mat-raised-button color="primary" type="submit" [disabled]="myForm.invalid">
+      Submit
+    </button>
+
+    <div *ngIf="conversionResult" class="result">
+      <p><strong>Converted Amount:</strong> {{ conversionResult }}</p>
+    </div>
+    <!-- Response/Error Messages -->
+    <p *ngIf="responseMessage" style="color: green;">{{ responseMessage }}</p>
+    <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+    <mat-error *ngIf="myForm.hasError('sameCurrency')">
+      "From" and "To" currencies must be different.
+    </mat-error>
+  </form>
+</mat-card>
